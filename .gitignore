@@ -1,0 +1,5 @@
+# Données : trop lourdes pour GitHub (rev-transactions.csv = 300 Mo), chacun les garde en local
+*.csv
+.ipynb_checkpoints/
+.DS_Store
+__pycache__/
