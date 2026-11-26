@@ -9,7 +9,7 @@ Support: the notebook `churn_revolut.ipynb`, scrolled section by section. ⏱ = 
 **[Section 1 — Framing]** ⏱ 0:00
 "The retention team at Revolut can send a costly offer to a limited number of customers each month. Our job is to tell them **who should get it**, and whether it is worth it.
 The decision is simple: sending one offer earns on average *probability of leaving × probability the offer keeps them × what the customer is worth*, minus the cost of the offer. We send it only when that is positive.
-Two of these numbers are not in the data: the offer cost, which we test at 1, 2 and 5 euros, and its success rate, which we test at 20, 30 and 50%, because **no offer was ever sent** in this dataset."
+Our offer: **5% cashback on card payments for 30 days, capped at 2 euros** — churners stop using their card, so the offer pushes exactly the behaviour of customers who stay, and its cost is capped. We also test 1 and 5 euros. Its success rate is not in the data, because **no offer was ever sent**: we test 20, 30 and 50%."
 
 **[Section 2 — Audit]** ⏱ 0:50
 "Before modelling, we audited the data. Three decisions: we capped amounts, because some transfers reach 85 billion dollars; we dropped `plan`, because it is the plan at export time — a **leak**; and we kept zero-dollar transactions as a failure signal."
@@ -40,7 +40,7 @@ But the key result is in euros. Targeting the riskiest customers **loses money i
 "Where does it fail? It catches customers who fade out, but only **4 to 5% of churners who were still active**. The most expensive misses used their account days before leaving: nothing in the transactions announced it. On the other hand, false alarms cost nothing: they are dormant, zero-value customers, so the rule never sends them an offer."
 
 **[Section 11 — Recommendation]** ⏱ 6:20
-"Our recommendation: **ship under condition**. Use the profitability rule, with an offer of 2 euros or less. In the first month: an A/B test with a control group to measure the real success rate — if it is below break-even, we stop — a calibration check, and monthly retraining."
+"Our recommendation: **ship under condition**. Use the profitability rule with the 2-euro cashback offer — in practice, it goes only to high-value customers at risk, mostly in the UK. In the first month: an A/B test with a control group to measure the real success rate — if it is below break-even, we stop — a calibration check, and monthly retraining."
 ⏱ 7:00
 
 ---
@@ -59,6 +59,8 @@ But the key result is in euros. Targeting the riskiest customers **loses money i
 | Why is the test gain 3× the validation gain? | More training data (fit + validation) and maybe an easier period. That is why we give a range. |
 | Which column did you remove for leakage? | `plan` (export snapshot). `crypto`, `n_contacts`, opt-ins are snapshots too: kept but listed as a limit. |
 | Why exclude new customers? | 0 in the test set, churn twice as much, not enough history. |
+| What is your offer? | 5% cashback on card payments for 30 days, capped at €2. Same offer for everyone targeted; the model decides *who*, not *which offer*. |
+| Why do opt-ins have both 0 and a flag? | Models need a value; the flag lets the model tell "unknown" from "refused". |
 | What would you check first in month one? | The real success rate Z with a control group: everything depends on it. |
 | What's the biggest weakness? | Sudden departures of active customers: invisible in transactions. |
 | Explain this line: `d.n_tx_90d.clip(lower=1)` | Avoids dividing by zero for customers with no transaction in 90 days. |
